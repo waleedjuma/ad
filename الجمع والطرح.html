@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>سحب اللون والتحقق من الإجابة</title>
+  <style>
+    body {
+      background-color: #fdf6e3;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    .fish {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+      gap: 10px;
+    }
+    .section {
+      width: 100px;
+      height: 100px;
+      border: 2px dashed #aaa;
+      line-height: 100px;
+      font-size: 18px;
+      font-weight: bold;
+      background-color: #fff;
+      position: relative;
+    }
+    .palette {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    .color-box {
+      width: 80px;
+      height: 80px;
+      border-radius: 10px;
+      cursor: grab;
+      font-size: 18px;
+      font-weight: bold;
+      line-height: 80px;
+      color: white;
+      text-align: center;
+    }
+    .red    { background-color: #e74c3c; }
+    .green  { background-color: #27ae60; }
+    .yellow { background-color: #f1c40f; color: black; }
+    .pink   { background-color: #fd79a8; }
+    .blue   { background-color: #3498db; }
+
+    #checkButton {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 18px;
+      background-color: #2980b9;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .result {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>اسحب اللون المناسب إلى العملية الحسابية ثم اضغط "تحقق"</h2>
+
+  <div class="fish">
+    <div class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="٧">٣ + ٤</div>
+    <div class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="١">٤ − ٣</div>
+    <div class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="٢">٥ − ٣</div>
+    <div class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="−٦">٣ − ٩</div>
+    <div class="section" ondrop="drop(event)" ondragover="allowDrop(event)" data-answer="−١">٥ − ٦</div>
+  </div>
+
+  <div class="palette">
+    <div class="color-box red"    draggable="true" ondragstart="drag(event)">٧</div>
+    <div class="color-box green"  draggable="true" ondragstart="drag(event)">١</div>
+    <div class="color-box yellow" draggable="true" ondragstart="drag(event)">٢</div>
+    <div class="color-box pink"   draggable="true" ondragstart="drag(event)">−٦</div>
+    <div class="color-box blue"   draggable="true" ondragstart="drag(event)">−١</div>
+  </div>
+
+  <button id="checkButton" onclick="checkAnswers()">تحقق من الإجابات</button>
+
+  <script>
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.outerHTML);
+    }
+
+    function drop(ev) {
+      ev.preventDefault();
+      const data = ev.dataTransfer.getData("text");
+      const draggedElement = document.createElement("div");
+      draggedElement.innerHTML = data;
+      const value = draggedElement.querySelector(".color-box").textContent.trim();
+
+      // Clear previous content but keep the operation
+      const operationText = ev.target.textContent.split(' ')[0];
+      ev.target.innerHTML = operationText;
+
+      const span = document.createElement("span");
+      span.className = "result";
+      span.textContent = value;
+      ev.target.appendChild(span);
+      ev.target.setAttribute("data-dropped", value);
+    }
+
+    function checkAnswers() {
+      document.querySelectorAll(".section").forEach(section => {
+        const answer = section.getAttribute("data-answer");
+        const userValue = section.getAttribute("data-dropped");
+
+        // Clear previous check results
+        const oldResult = section.querySelector(".check-result");
+        if (oldResult) {
+          oldResult.remove();
+        }
+
+        const resultIcon = document.createElement("div");
+        resultIcon.className = "check-result";
+        resultIcon.style.position = "absolute";
+        resultIcon.style.bottom = "5px";
+        resultIcon.style.right = "5px";
+        resultIcon.style.fontSize = "20px";
+
+        if (userValue === answer) {
+          resultIcon.textContent = "✅";
+        } else {
+          resultIcon.textContent = "❌";
+        }
+
+        section.appendChild(resultIcon);
+      });
+    }
+  </script>
+
+</body>
+</html>
